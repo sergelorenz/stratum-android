@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Stratum</string>
+    <string name="search_for_server">Search for Stratum Servers</string>
+    <string name="how_stratum_works">How Stratum works</string>
 </resources>
