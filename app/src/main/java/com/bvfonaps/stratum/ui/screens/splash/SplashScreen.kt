@@ -1,4 +1,4 @@
-package com.bvfonaps.stratum.ui.screens.home
+package com.bvfonaps.stratum.ui.screens.splash
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,6 +16,8 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -23,18 +25,33 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bvfonaps.stratum.ui.theme.StratumTheme
 import com.bvfonaps.stratum.R
 import com.bvfonaps.stratum.ui.navigation.NavigationDestination
 
 
-object HomeDestination : NavigationDestination {
+object SplashDestination : NavigationDestination {
     override val route = "home"
 }
 
 
 @Composable
-fun HomeScreen(
+fun SplashScreen(
+    modifier: Modifier = Modifier,
+    viewModel: DiscoveryViewModel = viewModel(factory = DiscoveryViewModel.Factory)
+) {
+    val uiState by viewModel.uiState.collectAsState()
+    SplashContent(
+        uiState = uiState,
+        modifier = modifier
+    )
+}
+
+
+@Composable
+fun SplashContent(
+    uiState: DiscoveryState,
     modifier: Modifier = Modifier
 ) {
     Surface(
@@ -56,6 +73,15 @@ fun HomeScreen(
             Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                when (uiState) {
+                    DiscoveryState.Idle -> Text("Idle!!")
+                    DiscoveryState.Searching -> Text("Searching")
+                    is DiscoveryState.Found -> {
+                        val baseUrl = uiState.baseUrl
+                        Text("Found URL!!$baseUrl")
+                    }
+                    DiscoveryState.NotFound -> Text("not found!!")
+                }
                 Button(
                     onClick = { },
                     modifier = Modifier.fillMaxWidth(0.8f),
@@ -94,14 +120,13 @@ fun HomeScreen(
 
         }
     }
-
 }
 
 
 @Preview(showBackground = true)
 @Composable
-fun HomeScreenPreview() {
+fun SplashScreenPreview() {
     StratumTheme {
-        HomeScreen()
+        SplashContent(uiState = DiscoveryState.Idle)
     }
 }
