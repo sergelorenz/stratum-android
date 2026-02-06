@@ -25,6 +25,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bvfonaps.stratum.ui.theme.StratumTheme
 import com.bvfonaps.stratum.R
+import com.bvfonaps.stratum.ui.navigation.NavigationDestination
+
+
+object HomeDestination : NavigationDestination {
+    override val route = "home"
+}
+
 
 @Composable
 fun HomeScreen(
