@@ -1,22 +1,24 @@
-package com.bvfonaps.stratum.data.discovery
+package com.bvfonaps.stratum.data.repositories.dummy
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.net.wifi.WifiManager
+import com.bvfonaps.stratum.data.repositories.interfaces.IDiscoveryRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import java.net.DatagramSocket
 import java.net.SocketTimeoutException
 
-class DiscoveryRepository(
+
+class TestDiscoveryRepository(
     private val context: Context
-) {
+) : IDiscoveryRepository {
+
     @SuppressLint("ServiceCast")
-    suspend fun discoverServer(): String? {
+    override suspend fun discoverServer(): String? {
 //        val wifi = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
 //        val lock = wifi.createMulticastLock("udp_discovery")
 //        lock.acquire()
-
+        delay(1500)
         return try {
             val response = discoverServerUdp()
             response?.let { parseServerResponse(it)}

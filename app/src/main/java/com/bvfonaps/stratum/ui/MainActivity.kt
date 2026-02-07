@@ -1,4 +1,4 @@
-package com.bvfonaps.stratum
+package com.bvfonaps.stratum.ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

@@ -1,13 +1,8 @@
 package com.bvfonaps.stratum.ui.screens.splash
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
-import com.bvfonaps.stratum.StratumApplication
-import com.bvfonaps.stratum.data.discovery.DiscoveryRepository
+import com.bvfonaps.stratum.data.repositories.interfaces.IDiscoveryRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -22,7 +17,7 @@ sealed interface DiscoveryState {
 
 
 class DiscoveryViewModel(
-    private val discoveryRepository: DiscoveryRepository
+    private val discoveryRepository: IDiscoveryRepository
 ): ViewModel() {
     private val _uiState = MutableStateFlow<DiscoveryState>(
         DiscoveryState.Idle
@@ -41,16 +36,6 @@ class DiscoveryViewModel(
                 DiscoveryState.Found(result)
             } else {
                 DiscoveryState.NotFound
-            }
-        }
-    }
-
-    companion object {
-        val Factory: ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                val application = (this[APPLICATION_KEY] as StratumApplication)
-                val discoveryRepository = application.container.discoveryRepository
-                DiscoveryViewModel(discoveryRepository = discoveryRepository)
             }
         }
     }

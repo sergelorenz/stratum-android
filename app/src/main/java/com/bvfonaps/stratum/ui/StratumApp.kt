@@ -1,4 +1,4 @@
-package com.bvfonaps.stratum
+package com.bvfonaps.stratum.ui
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
