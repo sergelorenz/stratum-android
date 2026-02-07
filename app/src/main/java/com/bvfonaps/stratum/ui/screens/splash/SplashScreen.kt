@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bvfonaps.stratum.ui.theme.StratumTheme
 import com.bvfonaps.stratum.R
+import com.bvfonaps.stratum.ui.viewmodels.factory.AppViewModelProvider
 import com.bvfonaps.stratum.ui.navigation.NavigationDestination
 
 
@@ -39,7 +40,7 @@ object SplashDestination : NavigationDestination {
 @Composable
 fun SplashScreen(
     modifier: Modifier = Modifier,
-    viewModel: DiscoveryViewModel = viewModel(factory = DiscoveryViewModel.Factory)
+    viewModel: DiscoveryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val uiState by viewModel.uiState.collectAsState()
     SplashContent(
@@ -78,7 +79,7 @@ fun SplashContent(
                     DiscoveryState.Searching -> Text("Searching")
                     is DiscoveryState.Found -> {
                         val baseUrl = uiState.baseUrl
-                        Text("Found URL!!$baseUrl")
+                        Text(baseUrl)
                     }
                     DiscoveryState.NotFound -> Text("not found!!")
                 }
