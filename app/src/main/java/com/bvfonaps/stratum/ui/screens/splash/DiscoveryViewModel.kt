@@ -24,11 +24,7 @@ class DiscoveryViewModel(
     )
     val uiState: StateFlow<DiscoveryState> = _uiState
 
-    init {
-        discover()
-    }
-
-    private fun discover() {
+    fun discover() {
         viewModelScope.launch {
             _uiState.value = DiscoveryState.Searching
             val result = discoveryRepository.discoverServer()

@@ -17,6 +17,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val lightScheme = lightColorScheme(
+    primary = primaryLight,
     onPrimary = onPrimaryLight,
     primaryContainer = primaryContainerLight,
     onPrimaryContainer = onPrimaryContainerLight,
