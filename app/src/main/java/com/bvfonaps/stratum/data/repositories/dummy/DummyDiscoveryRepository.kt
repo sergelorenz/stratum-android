@@ -18,7 +18,7 @@ class TestDiscoveryRepository(
 //        val wifi = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
 //        val lock = wifi.createMulticastLock("udp_discovery")
 //        lock.acquire()
-        delay(1500)
+        delay(3000)
         return try {
             val response = discoverServerUdp()
             response?.let { parseServerResponse(it)}

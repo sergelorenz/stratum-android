@@ -1,5 +1,6 @@
 package com.bvfonaps.stratum.ui.screens.splash
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -28,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bvfonaps.stratum.ui.theme.StratumTheme
 import com.bvfonaps.stratum.R
+import com.bvfonaps.stratum.ui.components.animations.SearchingAnimation
 import com.bvfonaps.stratum.ui.viewmodels.factory.AppViewModelProvider
 import com.bvfonaps.stratum.ui.navigation.NavigationDestination
 
@@ -45,7 +47,8 @@ fun SplashScreen(
     val uiState by viewModel.uiState.collectAsState()
     SplashContent(
         uiState = uiState,
-        modifier = modifier
+        onClickSearch = viewModel::discover,
+        modifier = modifier,
     )
 }
 
@@ -53,6 +56,7 @@ fun SplashScreen(
 @Composable
 fun SplashContent(
     uiState: DiscoveryState,
+    onClickSearch: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Surface(
@@ -72,50 +76,39 @@ fun SplashContent(
             )
             Spacer(modifier = Modifier.height(128.dp))
             Column(
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 when (uiState) {
-                    DiscoveryState.Idle -> Text("Idle!!")
-                    DiscoveryState.Searching -> Text("Searching")
                     is DiscoveryState.Found -> {
-                        val baseUrl = uiState.baseUrl
-                        Text(baseUrl)
+                        FoundServerButton(modifier = modifier)
                     }
-                    DiscoveryState.NotFound -> Text("not found!!")
+                    else -> {
+                        SearchServerButton(
+                            uiState = uiState,
+                            onClickSearch = onClickSearch,
+                            modifier = modifier
+                        )
+                    }
                 }
-                Button(
-                    onClick = { },
-                    modifier = Modifier.fillMaxWidth(0.8f),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.tertiary
-                    )
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.search_icon),
-                        contentDescription = stringResource(R.string.search_for_server)
-                    )
-                    Spacer(modifier = modifier.width(8.dp))
-                    Text(
-                        text = stringResource(R.string.search_for_server),
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
-                OutlinedButton(
-                    onClick = { },
-                    modifier = Modifier.fillMaxWidth(0.8f),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = MaterialTheme.colorScheme.tertiary,
-                    )
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.question_mark_icon),
-                        contentDescription = stringResource(R.string.how_stratum_works)
-                    )
-                    Spacer(modifier = modifier.width(8.dp))
-                    Text(
-                        text = stringResource(R.string.how_stratum_works),
-                        style = MaterialTheme.typography.bodySmall
-                    )
+                if (uiState == DiscoveryState.Idle) {
+                    OutlinedButton(
+                        onClick = { },
+                        modifier = Modifier.fillMaxWidth(0.8f),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.tertiary,
+                        )
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.question_mark_icon),
+                            contentDescription = stringResource(R.string.how_stratum_works)
+                        )
+                        Spacer(modifier = modifier.width(16.dp))
+                        Text(
+                            text = stringResource(R.string.how_stratum_works),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
                 }
             }
 
@@ -124,10 +117,73 @@ fun SplashContent(
 }
 
 
+@Composable
+fun SearchServerButton(
+    uiState: DiscoveryState,
+    onClickSearch: () -> Unit,
+    modifier: Modifier
+) {
+
+    @StringRes val searchResource: Int = when (uiState) {
+        DiscoveryState.Searching -> R.string.searching
+        else -> R.string.search_for_server
+    }
+
+    Button(
+        onClick = onClickSearch,
+        modifier = Modifier.fillMaxWidth(0.8f),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.tertiary
+        )
+    ) {
+        if (uiState === DiscoveryState.Searching) {
+            SearchingAnimation(
+                size = 24.dp
+            )
+        } else {
+            Icon(
+                painterResource(R.drawable.search_icon),
+                contentDescription = null
+            )
+        }
+        Spacer(modifier = modifier.width(16.dp))
+        Text(
+            text = stringResource(searchResource),
+            style = MaterialTheme.typography.bodySmall
+        )
+    }
+}
+
+
+@Composable
+fun FoundServerButton(modifier: Modifier) {
+    Button(
+        onClick = { },
+        modifier = Modifier.fillMaxWidth(0.8f),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary
+        )
+    ) {
+        Icon(
+            painterResource(R.drawable.check_icon),
+            contentDescription = null
+        )
+        Spacer(modifier = modifier.width(16.dp))
+        Text(
+            text = stringResource(R.string.found_server),
+            style = MaterialTheme.typography.bodySmall
+        )
+    }
+}
+
+
 @Preview(showBackground = true)
 @Composable
 fun SplashScreenPreview() {
     StratumTheme {
-        SplashContent(uiState = DiscoveryState.Idle)
+        SplashContent(
+            uiState = DiscoveryState.Found("hello"),
+            onClickSearch = { }
+        )
     }
 }
