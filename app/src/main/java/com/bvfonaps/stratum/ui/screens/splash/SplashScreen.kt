@@ -83,6 +83,12 @@ fun SplashContent(
                     is DiscoveryState.Found -> {
                         FoundServerButton(modifier = modifier)
                     }
+                    DiscoveryState.NotFound -> {
+                        NotFoundServerButton(
+                            modifier = modifier,
+                            onClickSearch = onClickSearch
+                        )
+                    }
                     else -> {
                         SearchServerButton(
                             uiState = uiState,
@@ -156,9 +162,11 @@ fun SearchServerButton(
 
 
 @Composable
-fun FoundServerButton(modifier: Modifier) {
+fun FoundServerButton(
+    modifier: Modifier
+) {
     Button(
-        onClick = { },
+        onClick = {  },
         modifier = Modifier.fillMaxWidth(0.8f),
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.primary
@@ -177,12 +185,37 @@ fun FoundServerButton(modifier: Modifier) {
 }
 
 
+@Composable
+fun NotFoundServerButton(
+    onClickSearch: () -> Unit,
+    modifier: Modifier
+) {
+    Button(
+        onClick = onClickSearch,
+        modifier = Modifier.fillMaxWidth(0.8f),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.error
+        )
+    ) {
+        Icon(
+            painterResource(R.drawable.error_icon),
+            contentDescription = null
+        )
+        Spacer(modifier = modifier.width(16.dp))
+        Text(
+            text = stringResource(R.string.not_found_server),
+            style = MaterialTheme.typography.bodySmall
+        )
+    }
+}
+
+
 @Preview(showBackground = true)
 @Composable
 fun SplashScreenPreview() {
     StratumTheme {
         SplashContent(
-            uiState = DiscoveryState.Found("hello"),
+            uiState = DiscoveryState.NotFound,
             onClickSearch = { }
         )
     }
