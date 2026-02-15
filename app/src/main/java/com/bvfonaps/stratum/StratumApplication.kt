@@ -9,5 +9,6 @@ class StratumApplication: Application() {
     override fun onCreate() {
         super.onCreate()
         container = DefaultAppContainer(this)
+        container.initApiManager()
     }
 }

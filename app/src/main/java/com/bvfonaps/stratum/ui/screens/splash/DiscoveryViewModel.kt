@@ -2,6 +2,7 @@ package com.bvfonaps.stratum.ui.screens.splash
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bvfonaps.stratum.data.remote.api.utils.ApiManager
 import com.bvfonaps.stratum.data.repositories.interfaces.IDiscoveryRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,8 +18,11 @@ sealed interface DiscoveryState {
 
 
 class DiscoveryViewModel(
-    private val discoveryRepository: IDiscoveryRepository
+    private val discoveryRepository: IDiscoveryRepository,
 ): ViewModel() {
+
+    private val apiRepository = ApiManager.apiRepository
+
     private val _uiState = MutableStateFlow<DiscoveryState>(
         DiscoveryState.Idle
     )
@@ -29,6 +33,7 @@ class DiscoveryViewModel(
             _uiState.value = DiscoveryState.Searching
             val result = discoveryRepository.discoverServer()
             _uiState.value = if (result != null) {
+                apiRepository.setBaseUrl(result)
                 DiscoveryState.Found(result)
             } else {
                 DiscoveryState.NotFound
