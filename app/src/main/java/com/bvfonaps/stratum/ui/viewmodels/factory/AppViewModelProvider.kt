@@ -12,7 +12,6 @@ object AppViewModelProvider {
         initializer {
             DiscoveryViewModel(
                 stratumApplication().container.discoveryRepository
-
             )
         }
     }
