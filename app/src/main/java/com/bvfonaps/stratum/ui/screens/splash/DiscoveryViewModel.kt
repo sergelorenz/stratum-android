@@ -17,27 +17,47 @@ sealed interface DiscoveryState {
 }
 
 
+sealed interface ShowAuthState {
+    object Closed: ShowAuthState
+    object Open: ShowAuthState
+}
+
+
 class DiscoveryViewModel(
     private val discoveryRepository: IDiscoveryRepository,
 ): ViewModel() {
 
     private val apiRepository = ApiManager.apiRepository
 
-    private val _uiState = MutableStateFlow<DiscoveryState>(
+    private val _discoveryState = MutableStateFlow<DiscoveryState>(
         DiscoveryState.Idle
     )
-    val uiState: StateFlow<DiscoveryState> = _uiState
+    val discoveryState: StateFlow<DiscoveryState> = _discoveryState
+
+    private val _showAuthState = MutableStateFlow<ShowAuthState>(
+        ShowAuthState.Closed
+    )
+    val showAuthState: StateFlow<ShowAuthState> = _showAuthState
 
     fun discover() {
         viewModelScope.launch {
-            _uiState.value = DiscoveryState.Searching
+            _discoveryState.value = DiscoveryState.Searching
             val result = discoveryRepository.discoverServer()
-            _uiState.value = if (result != null) {
+            if (result != null) {
+                _discoveryState.value = DiscoveryState.Found(result)
                 apiRepository.setBaseUrl(result)
-                DiscoveryState.Found(result)
+                _showAuthState.value = ShowAuthState.Open
             } else {
-                DiscoveryState.NotFound
+                _discoveryState.value = DiscoveryState.NotFound
             }
         }
+    }
+
+    fun closeAuthDialog() {
+        _showAuthState.value = ShowAuthState.Closed
+    }
+
+    fun openAuthDialog() {
+        _showAuthState.value = ShowAuthState.Open
     }
 }
