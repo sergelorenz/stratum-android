@@ -44,9 +44,13 @@ fun SplashScreen(
     modifier: Modifier = Modifier,
     viewModel: DiscoveryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val discoveryState by viewModel.discoveryState.collectAsState()
+    val showAuthState by viewModel.showAuthState.collectAsState()
     SplashContent(
-        uiState = uiState,
+        onOpenAuthDialog = viewModel::openAuthDialog,
+        onCloseAuthDialog = viewModel::closeAuthDialog,
+        discoveryState = discoveryState,
+        showAuthState = showAuthState,
         onClickSearch = viewModel::discover,
         modifier = modifier,
     )
@@ -55,7 +59,10 @@ fun SplashScreen(
 
 @Composable
 fun SplashContent(
-    uiState: DiscoveryState,
+    onOpenAuthDialog: () -> Unit,
+    onCloseAuthDialog: () -> Unit,
+    discoveryState: DiscoveryState,
+    showAuthState: ShowAuthState,
     onClickSearch: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -79,9 +86,12 @@ fun SplashContent(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                when (uiState) {
+                when (discoveryState) {
                     is DiscoveryState.Found -> {
-                        FoundServerButton(modifier = modifier)
+                        FoundServerButton(
+                            onClickButton = onOpenAuthDialog,
+                            modifier = modifier
+                        )
                     }
                     DiscoveryState.NotFound -> {
                         NotFoundServerButton(
@@ -91,13 +101,13 @@ fun SplashContent(
                     }
                     else -> {
                         SearchServerButton(
-                            uiState = uiState,
+                            uiState = discoveryState,
                             onClickSearch = onClickSearch,
                             modifier = modifier
                         )
                     }
                 }
-                if (uiState == DiscoveryState.Idle) {
+                if (discoveryState == DiscoveryState.Idle) {
                     OutlinedButton(
                         onClick = { },
                         modifier = Modifier.fillMaxWidth(0.8f),
@@ -117,7 +127,9 @@ fun SplashContent(
                     }
                 }
             }
-
+        }
+        if (showAuthState == ShowAuthState.Open) {
+            AuthDialog(onDismiss = onCloseAuthDialog)
         }
     }
 }
@@ -163,10 +175,11 @@ fun SearchServerButton(
 
 @Composable
 fun FoundServerButton(
+    onClickButton: () -> Unit,
     modifier: Modifier
 ) {
     Button(
-        onClick = {  },
+        onClick = onClickButton,
         modifier = Modifier.fillMaxWidth(0.8f),
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.primary
@@ -213,10 +226,13 @@ fun NotFoundServerButton(
 @Preview(showBackground = true)
 @Composable
 fun SplashScreenPreview() {
-    StratumTheme {
+    StratumTheme(darkTheme = true) {
         SplashContent(
-            uiState = DiscoveryState.NotFound,
-            onClickSearch = { }
+            discoveryState = DiscoveryState.NotFound,
+            showAuthState = ShowAuthState.Open,
+            onClickSearch = { },
+            onCloseAuthDialog = { },
+            onOpenAuthDialog = { }
         )
     }
 }

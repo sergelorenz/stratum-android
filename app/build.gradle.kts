@@ -62,6 +62,10 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.compose.material.icons.core)
+    implementation(libs.androidx.material.icons.extended)
+    implementation(libs.androidx.foundation.layout)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
