@@ -20,5 +20,5 @@ interface AuthApi {
     suspend fun logout(): Response<Unit>
 
     @GET("auth/me")
-    suspend fun me(): MeResponseDto
+    suspend fun me(): Response<MeResponseDto>
 }

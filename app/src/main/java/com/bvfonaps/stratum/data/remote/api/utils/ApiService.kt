@@ -3,6 +3,7 @@ package com.bvfonaps.stratum.data.remote.api.utils
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
 class ApiService(
     authInterceptor: AuthInterceptor
@@ -11,6 +12,9 @@ class ApiService(
     private var currentBaseUrl: String? = null
 
     val okHttpClient = OkHttpClient.Builder()
+        .connectTimeout(5, TimeUnit.SECONDS)
+        .readTimeout(5, TimeUnit.SECONDS)
+        .writeTimeout(5, TimeUnit.SECONDS)
         .addInterceptor(authInterceptor)
         .build()
 

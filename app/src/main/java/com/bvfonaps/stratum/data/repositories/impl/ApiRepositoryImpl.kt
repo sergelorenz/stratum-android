@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.asStateFlow
 class ApiRepositoryImpl(
     private val apiService: ApiService
 ): IApiRepository {
-    private val _baseUrl = MutableStateFlow("")
+    private val _baseUrl = MutableStateFlow("http://192.168.1.1:8080")
     val baseUrl: StateFlow<String> = _baseUrl.asStateFlow()
 
     override fun setBaseUrl(url: String) {

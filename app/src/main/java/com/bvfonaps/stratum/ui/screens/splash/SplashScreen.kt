@@ -87,6 +87,9 @@ fun SplashContent(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 when (discoveryState) {
+                    DiscoveryState.TestingConnection -> {
+
+                    }
                     is DiscoveryState.Found -> {
                         FoundServerButton(
                             onClickButton = onOpenAuthDialog,
@@ -228,8 +231,8 @@ fun NotFoundServerButton(
 fun SplashScreenPreview() {
     StratumTheme(darkTheme = true) {
         SplashContent(
-            discoveryState = DiscoveryState.NotFound,
-            showAuthState = ShowAuthState.Open,
+            discoveryState = DiscoveryState.Idle,
+            showAuthState = ShowAuthState.Closed,
             onClickSearch = { },
             onCloseAuthDialog = { },
             onOpenAuthDialog = { }
