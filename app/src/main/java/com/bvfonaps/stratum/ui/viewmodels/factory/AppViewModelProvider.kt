@@ -11,7 +11,8 @@ object AppViewModelProvider {
     val Factory = viewModelFactory {
         initializer {
             DiscoveryViewModel(
-                stratumApplication().container.discoveryRepository
+                stratumApplication().container.discoveryRepository,
+                stratumApplication().container.authRepository
             )
         }
     }

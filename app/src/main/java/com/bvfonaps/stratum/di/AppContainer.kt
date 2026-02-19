@@ -1,11 +1,12 @@
 package com.bvfonaps.stratum.di
 
 
-import com.bvfonaps.stratum.data.repositories.interfaces.IApiRepository
+import com.bvfonaps.stratum.data.repositories.interfaces.IAuthRepository
 import com.bvfonaps.stratum.data.repositories.interfaces.IDiscoveryRepository
 
 
 interface AppContainer {
     val discoveryRepository : IDiscoveryRepository
+    val authRepository: IAuthRepository
     fun initApiManager()
 }
