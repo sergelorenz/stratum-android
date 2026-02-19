@@ -2,15 +2,13 @@ package com.bvfonaps.stratum.ui.screens.splash
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bvfonaps.stratum.data.remote.api.AuthApi
 import com.bvfonaps.stratum.data.remote.api.utils.ApiManager
-import com.bvfonaps.stratum.data.repositories.interfaces.IApiRepository
+import com.bvfonaps.stratum.data.repositories.interfaces.CheckAuthResult
+import com.bvfonaps.stratum.data.repositories.interfaces.IAuthRepository
 import com.bvfonaps.stratum.data.repositories.interfaces.IDiscoveryRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import okio.IOException
-import retrofit2.HttpException
 
 
 sealed interface DiscoveryState {
@@ -30,6 +28,7 @@ sealed interface ShowAuthState {
 
 class DiscoveryViewModel(
     private val discoveryRepository: IDiscoveryRepository,
+    private val authRepository: IAuthRepository
 ): ViewModel() {
 
     private val apiRepository = ApiManager.apiRepository
@@ -45,7 +44,7 @@ class DiscoveryViewModel(
     val showAuthState: StateFlow<ShowAuthState> = _showAuthState
 
     init {
-
+        checkAuth()
     }
 
     fun discover() {
@@ -62,10 +61,6 @@ class DiscoveryViewModel(
         }
     }
 
-    init {
-        checkAuth()
-    }
-
     fun closeAuthDialog() {
         _showAuthState.value = ShowAuthState.Closed
     }
@@ -76,19 +71,21 @@ class DiscoveryViewModel(
 
     private fun checkAuth() {
         viewModelScope.launch {
-            val authApi = apiRepository.createService(AuthApi::class.java)
-            try {
-                val response = authApi.me()
-            } catch(e: HttpException) {
-                when (e.code()) {
-                    401, 403 -> {
-                        _discoveryState.value = DiscoveryState.Found(apiRepository.getCurrentBaseUrl())
-                    } else -> {
-                        _discoveryState.value = DiscoveryState.Idle
-                    }
+            val authResult = authRepository.checkAuth()
+            when (authResult) {
+                CheckAuthResult.CONNECTION_NOT_FOUND -> {
+                    _discoveryState.value = DiscoveryState.Idle
                 }
-            } catch (e: IOException) {
-                _discoveryState.value = DiscoveryState.Idle
+                CheckAuthResult.INTACT_CONNECTION -> {
+
+                }
+                CheckAuthResult.EXPIRED -> {
+                    _discoveryState.value = DiscoveryState.Found(apiRepository.getCurrentBaseUrl())
+                    _showAuthState.value = ShowAuthState.Open
+                }
+                else -> {
+                    _discoveryState.value = DiscoveryState.Idle
+                }
             }
         }
     }

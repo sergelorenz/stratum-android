@@ -2,7 +2,10 @@ package com.bvfonaps.stratum.data.repositories.dummy
 
 import android.annotation.SuppressLint
 import android.content.Context
+import com.bvfonaps.stratum.data.remote.api.AuthApi
+import com.bvfonaps.stratum.data.repositories.interfaces.IApiRepository
 import com.bvfonaps.stratum.data.repositories.interfaces.IDiscoveryRepository
+import com.bvfonaps.stratum.ui.screens.splash.DiscoveryState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
