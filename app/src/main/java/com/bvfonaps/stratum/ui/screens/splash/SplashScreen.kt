@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bvfonaps.stratum.ui.theme.StratumTheme
 import com.bvfonaps.stratum.R
+import com.bvfonaps.stratum.data.remote.api.utils.ShowAuthState
 import com.bvfonaps.stratum.ui.components.animations.SearchingAnimation
 import com.bvfonaps.stratum.ui.viewmodels.factory.AppViewModelProvider
 import com.bvfonaps.stratum.ui.navigation.NavigationDestination

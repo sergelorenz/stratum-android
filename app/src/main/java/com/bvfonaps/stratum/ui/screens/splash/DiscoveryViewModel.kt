@@ -3,6 +3,7 @@ package com.bvfonaps.stratum.ui.screens.splash
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bvfonaps.stratum.data.remote.api.utils.ApiManager
+import com.bvfonaps.stratum.data.remote.api.utils.AuthStateHolder
 import com.bvfonaps.stratum.data.repositories.interfaces.CheckAuthResult
 import com.bvfonaps.stratum.data.repositories.interfaces.IAuthRepository
 import com.bvfonaps.stratum.data.repositories.interfaces.IDiscoveryRepository
@@ -20,13 +21,8 @@ sealed interface DiscoveryState {
 }
 
 
-sealed interface ShowAuthState {
-    object Closed: ShowAuthState
-    object Open: ShowAuthState
-}
-
-
 class DiscoveryViewModel(
+    private val authStateHolder: AuthStateHolder,
     private val discoveryRepository: IDiscoveryRepository,
     private val authRepository: IAuthRepository
 ): ViewModel() {
@@ -37,11 +33,7 @@ class DiscoveryViewModel(
         DiscoveryState.TestingConnection
     )
     val discoveryState: StateFlow<DiscoveryState> = _discoveryState
-
-    private val _showAuthState = MutableStateFlow<ShowAuthState>(
-        ShowAuthState.Closed
-    )
-    val showAuthState: StateFlow<ShowAuthState> = _showAuthState
+    val showAuthState = authStateHolder.showAuthState
 
     init {
         checkAuth()
@@ -54,19 +46,11 @@ class DiscoveryViewModel(
             if (result != null) {
                 _discoveryState.value = DiscoveryState.Found(result)
                 apiRepository.setBaseUrl(result)
-                _showAuthState.value = ShowAuthState.Open
+                authStateHolder.openAuthDialog()
             } else {
                 _discoveryState.value = DiscoveryState.NotFound
             }
         }
-    }
-
-    fun closeAuthDialog() {
-        _showAuthState.value = ShowAuthState.Closed
-    }
-
-    fun openAuthDialog() {
-        _showAuthState.value = ShowAuthState.Open
     }
 
     private fun checkAuth() {
@@ -81,12 +65,20 @@ class DiscoveryViewModel(
                 }
                 CheckAuthResult.EXPIRED -> {
                     _discoveryState.value = DiscoveryState.Found(apiRepository.getCurrentBaseUrl())
-                    _showAuthState.value = ShowAuthState.Open
+                    authStateHolder.openAuthDialog()
                 }
                 else -> {
                     _discoveryState.value = DiscoveryState.Idle
                 }
             }
         }
+    }
+
+    fun closeAuthDialog() {
+        authStateHolder.closeAuthDialog()
+    }
+
+    fun openAuthDialog() {
+        authStateHolder.openAuthDialog()
     }
 }
