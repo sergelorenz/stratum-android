@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -40,22 +41,30 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bvfonaps.stratum.ui.theme.StratumTheme
 import com.bvfonaps.stratum.R
+import com.bvfonaps.stratum.ui.viewmodels.factory.AppViewModelProvider
 
 
 @Composable
 fun AuthDialog(
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: AuthViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    AuthDialogContent(onDismiss = onDismiss)
+    val authTypeState by viewModel.authTypeState.collectAsState()
+    AuthDialogContent(
+        onDismiss = onDismiss,
+        authTypeState = authTypeState
+    )
 }
 
 
 @Composable
 fun AuthDialogContent(
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    authTypeState: AuthTypeState
 ) {
     Dialog(onDismissRequest = onDismiss) {
         Card(
@@ -65,51 +74,131 @@ fun AuthDialogContent(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            Column(
-                modifier = Modifier.padding(20.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+            if (authTypeState == AuthTypeState.Login) {
+                LoginDialog(
+                    onDismiss = onDismiss
+                )
+            } else {
+                RegisterDialog(
+                    onDismiss = onDismiss
+                )
+            }
+        }
+    }
+}
+
+
+@Composable
+fun LoginDialog(
+    onDismiss: () -> Unit
+) {
+    Column(
+        modifier = Modifier.padding(20.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.login_to_continue),
+            style = MaterialTheme.typography.bodySmall
+        )
+
+        var username by remember { mutableStateOf("") }
+        var password by remember { mutableStateOf("") }
+
+        Spacer(
+            modifier = Modifier.height(8.dp)
+        )
+        AuthTextField(
+            value = username,
+            onValueChange = { username = it },
+            placeholder = stringResource(R.string.username)
+        )
+        AuthTextField(
+            value = password,
+            onValueChange = { password = it },
+            placeholder = stringResource(R.string.password),
+            isPassword = true
+        )
+        Spacer(
+            modifier = Modifier.height(8.dp)
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ) {
+            TextButton(
+                onClick = { },
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = MaterialTheme.colorScheme.onSurface
+                )
             ) {
-                Text(
-                    text = stringResource(R.string.login_to_continue),
-                    style = MaterialTheme.typography.bodySmall
-                )
+                Text(stringResource(R.string.create_account))
+            }
+            TextButton(
+                onClick = { }
+            ) {
+                Text(stringResource(R.string.login))
+            }
+        }
+    }
+}
 
-                var username by remember { mutableStateOf("") }
-                var password by remember { mutableStateOf("") }
 
-                Spacer(
-                    modifier = Modifier.height(8.dp)
+@Composable
+fun RegisterDialog(
+    onDismiss: () -> Unit
+) {
+    Column(
+        modifier = Modifier.padding(20.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.create_a_new_account),
+            style = MaterialTheme.typography.bodySmall
+        )
+
+        var username by remember { mutableStateOf("") }
+        var password by remember { mutableStateOf("") }
+        var confirmPassword by remember { mutableStateOf("") }
+
+        Spacer(
+            modifier = Modifier.height(8.dp)
+        )
+        AuthTextField(
+            value = username,
+            onValueChange = { username = it },
+            placeholder = stringResource(R.string.username)
+        )
+        AuthTextField(
+            value = password,
+            onValueChange = { password = it },
+            placeholder = stringResource(R.string.password),
+            isPassword = true
+        )
+        AuthTextField(
+            value = confirmPassword,
+            onValueChange = { confirmPassword = it },
+            placeholder = stringResource(R.string.confirm_password),
+            isPassword = true
+        )
+        Spacer(
+            modifier = Modifier.height(8.dp)
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ) {
+            TextButton(
+                onClick = { },
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = MaterialTheme.colorScheme.onSurface
                 )
-                AuthTextField(
-                    value = username,
-                    onValueChange = { username = it },
-                    placeholder = stringResource(R.string.username)
-                )
-                AuthTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    placeholder = stringResource(R.string.password),
-                    isPassword = true
-                )
-                Spacer(
-                    modifier = Modifier.height(8.dp)
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    TextButton(onClick = { }) {
-                        Text(stringResource(R.string.create_account))
-                    }
-                    TextButton(
-                        onClick = { },
-                        colors = ButtonDefaults.textButtonColors(
-                            contentColor = MaterialTheme.colorScheme.onSurface
-                        )
-                    ) {
-                        Text("Login")
-                    }
-                }
+            ) {
+                Text(stringResource(R.string.have_an_account))
+            }
+            TextButton(
+                onClick = { }
+            ) {
+                Text(stringResource(R.string.confirm))
             }
         }
     }
@@ -189,8 +278,23 @@ fun AuthTextField(
 
 @Preview(showBackground = true)
 @Composable
-fun AuthDialogPreview() {
+fun LoginDialogPreview() {
     StratumTheme {
-        AuthDialogContent(onDismiss = { })
+        AuthDialogContent(
+            onDismiss = { },
+            authTypeState = AuthTypeState.Login
+        )
+    }
+}
+
+
+@Preview(showBackground = true)
+@Composable
+fun RegisterDialogPreview() {
+    StratumTheme {
+        AuthDialogContent(
+            onDismiss = { },
+            authTypeState = AuthTypeState.Register
+        )
     }
 }
