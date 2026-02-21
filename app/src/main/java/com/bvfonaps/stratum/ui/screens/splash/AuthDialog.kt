@@ -1,5 +1,6 @@
 package com.bvfonaps.stratum.ui.screens.splash
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
@@ -26,6 +28,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
@@ -34,6 +37,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -53,11 +59,15 @@ fun AuthDialog(
     viewModel: AuthViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val authTypeState by viewModel.authTypeState.collectAsState()
+    val authResultState by viewModel.authResultState.collectAsState()
     AuthDialogContent(
         onDismiss = viewModel::closeAuthDialog,
         onSwitchToRegister = viewModel::switchToRegisterAuthDialog,
         onSwitchToLogin = viewModel::switchToLoginAuthDialog,
-        authTypeState = authTypeState
+        authTypeState = authTypeState,
+        authResultState = authResultState,
+        onLogin = viewModel::login,
+        onRegister = viewModel::register
     )
 }
 
@@ -67,7 +77,10 @@ fun AuthDialogContent(
     onDismiss: () -> Unit,
     onSwitchToRegister: () -> Unit,
     onSwitchToLogin: () -> Unit,
-    authTypeState: AuthTypeState
+    authTypeState: AuthTypeState,
+    authResultState: AuthResultState,
+    onLogin: (username: String, password: String) -> Unit,
+    onRegister: (username: String, password: String, confirmPassword: String) -> Unit
 ) {
     Dialog(onDismissRequest = onDismiss) {
         Card(
@@ -79,11 +92,15 @@ fun AuthDialogContent(
         ) {
             if (authTypeState == AuthTypeState.Login) {
                 LoginDialog(
-                    onSwitchToRegister = onSwitchToRegister
+                    onSwitchToRegister = onSwitchToRegister,
+                    authResultState = authResultState,
+                    onLogin = onLogin
                 )
             } else {
                 RegisterDialog(
-                    onSwitchToLogin = onSwitchToLogin
+                    onSwitchToLogin = onSwitchToLogin,
+                    authResultState = authResultState,
+                    onRegister = onRegister
                 )
             }
         }
@@ -93,7 +110,9 @@ fun AuthDialogContent(
 
 @Composable
 fun LoginDialog(
-    onSwitchToRegister: () -> Unit
+    onSwitchToRegister: () -> Unit,
+    onLogin: (username: String, password: String) -> Unit,
+    authResultState: AuthResultState
 ) {
     Column(
         modifier = Modifier.padding(20.dp),
@@ -101,8 +120,9 @@ fun LoginDialog(
     ) {
         Text(
             text = stringResource(R.string.login_to_continue),
-            style = MaterialTheme.typography.bodySmall
+            style = MaterialTheme.typography.displaySmall
         )
+        AuthFeedback(authResultState)
 
         var username by remember { mutableStateOf("") }
         var password by remember { mutableStateOf("") }
@@ -134,10 +154,10 @@ fun LoginDialog(
                     contentColor = MaterialTheme.colorScheme.onSurface
                 )
             ) {
-                Text(stringResource(R.string.create_account))
+                Text(stringResource(R.string.create_account_instead))
             }
             TextButton(
-                onClick = { }
+                onClick = { onLogin(username, password) }
             ) {
                 Text(stringResource(R.string.login))
             }
@@ -148,7 +168,9 @@ fun LoginDialog(
 
 @Composable
 fun RegisterDialog(
-    onSwitchToLogin: () -> Unit
+    onSwitchToLogin: () -> Unit,
+    onRegister: (username: String, password: String, confirmPassword: String) -> Unit,
+    authResultState: AuthResultState
 ) {
     Column(
         modifier = Modifier.padding(20.dp),
@@ -156,8 +178,9 @@ fun RegisterDialog(
     ) {
         Text(
             text = stringResource(R.string.create_a_new_account),
-            style = MaterialTheme.typography.bodySmall
+            style = MaterialTheme.typography.displaySmall
         )
+        AuthFeedback(authResultState)
 
         var username by remember { mutableStateOf("") }
         var password by remember { mutableStateOf("") }
@@ -199,7 +222,7 @@ fun RegisterDialog(
                 Text(stringResource(R.string.have_an_account))
             }
             TextButton(
-                onClick = { }
+                onClick = { onRegister(username, password, confirmPassword) }
             ) {
                 Text(stringResource(R.string.confirm))
             }
@@ -245,6 +268,7 @@ fun AuthTextField(
                 } else {
                     KeyboardOptions.Default
                 },
+                cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
                 modifier = Modifier
                     .weight(1f)
             ) { innerTextField ->
@@ -279,6 +303,106 @@ fun AuthTextField(
 }
 
 
+@Composable
+fun AuthFeedback(authResultState: AuthResultState) {
+    when (authResultState) {
+        is AuthResultState.Success -> {
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.primaryContainer)
+                    .fillMaxWidth()
+                    .padding(
+                        vertical = 4.dp,
+                        horizontal = 12.dp
+                    )
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        painterResource(R.drawable.check_icon),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(R.string.login_successful),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+        }
+        is AuthResultState.Error -> {
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.errorContainer)
+                    .fillMaxWidth()
+                    .padding(
+                        vertical = 4.dp,
+                        horizontal = 12.dp
+                    )
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        painterResource(R.drawable.error_icon),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier
+                            .size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = authResultState.message,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            }
+        }
+        is AuthResultState.Authenticating -> {
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.tertiaryContainer)
+                    .fillMaxWidth()
+                    .padding(
+                        vertical = 4.dp,
+                        horizontal = 12.dp
+                    )
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Spacer(modifier = Modifier.width(2.dp))
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.tertiary,
+                        strokeWidth = 2.dp,
+                        modifier = Modifier
+                            .size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = stringResource(R.string.authenticating),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.tertiary
+                    )
+                }
+            }
+        }
+        else -> {
+
+        }
+    }
+}
+
+
 @Preview(showBackground = true)
 @Composable
 fun LoginDialogPreview() {
@@ -287,7 +411,10 @@ fun LoginDialogPreview() {
             onDismiss = { },
             onSwitchToLogin = { },
             onSwitchToRegister = { },
-            authTypeState = AuthTypeState.Login
+            authTypeState = AuthTypeState.Login,
+            authResultState = AuthResultState.Authenticating,
+            onLogin = { _, _ -> },
+            onRegister = { _, _, _ -> }
         )
     }
 }
@@ -301,7 +428,10 @@ fun RegisterDialogPreview() {
             onDismiss = { },
             onSwitchToRegister = { },
             onSwitchToLogin = { },
-            authTypeState = AuthTypeState.Register
+            authTypeState = AuthTypeState.Register,
+            authResultState = AuthResultState.Error("Passwords don't match."),
+            onLogin = { _, _ -> },
+            onRegister = { _, _, _ -> }
         )
     }
 }

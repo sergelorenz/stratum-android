@@ -2,6 +2,7 @@ package com.bvfonaps.stratum.ui.screens.splash
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bvfonaps.stratum.data.remote.api.ApiResult
 import com.bvfonaps.stratum.data.remote.api.utils.AuthStateHolder
 import com.bvfonaps.stratum.data.repositories.interfaces.IAuthRepository
 import kotlinx.coroutines.delay
@@ -50,6 +51,7 @@ class AuthViewModel(
 
     fun switchToRegisterAuthDialog() {
         viewModelScope.launch {
+            _authResultState.value = AuthResultState.Idle
             closeAuthDialog()
             delay(500)
             _authTypeState.value = AuthTypeState.Register
@@ -59,10 +61,47 @@ class AuthViewModel(
 
     fun switchToLoginAuthDialog() {
         viewModelScope.launch {
+            _authResultState.value = AuthResultState.Idle
             closeAuthDialog()
             delay(500)
             _authTypeState.value = AuthTypeState.Login
             openAuthDialog()
+        }
+    }
+
+    fun login(username: String, password: String) {
+        viewModelScope.launch {
+            _authResultState.value = AuthResultState.Authenticating
+            when (val loginResult = authRepository.login(username, password)) {
+                is ApiResult.Success -> {
+                    val token = loginResult.data
+                    _authResultState.value = AuthResultState.Success
+                }
+                is ApiResult.Error -> {
+                    val errorMessage = loginResult.message
+                    _authResultState.value = AuthResultState.Error(errorMessage)
+                }
+            }
+        }
+    }
+
+    fun register(
+        username: String,
+        password: String,
+        confirmPassword: String
+    ) {
+        viewModelScope.launch {
+            _authResultState.value = AuthResultState.Authenticating
+            when (val registerResult = authRepository.register(username, password, confirmPassword)) {
+                is ApiResult.Success -> {
+                    val token = registerResult.data
+                    _authResultState.value = AuthResultState.Success
+                }
+                is ApiResult.Error -> {
+                    val errorMessage = registerResult.message
+                    _authResultState.value = AuthResultState.Error(errorMessage)
+                }
+            }
         }
     }
 }
