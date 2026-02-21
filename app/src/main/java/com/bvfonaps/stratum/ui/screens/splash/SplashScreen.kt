@@ -133,7 +133,7 @@ fun SplashContent(
             }
         }
         if (showAuthState == ShowAuthState.Open) {
-            AuthDialog(onDismiss = onCloseAuthDialog)
+            AuthDialog()
         }
     }
 }
