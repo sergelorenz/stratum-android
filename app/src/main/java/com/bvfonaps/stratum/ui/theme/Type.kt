@@ -44,7 +44,8 @@ val AppTypography = Typography(
     bodySmall = TextStyle(
         fontFamily = Kantumruy,
         fontWeight = FontWeight.Normal,
-        fontSize = 14.sp
+        fontSize = 14.sp,
+        lineHeight = 16.sp
     ),
     labelMedium = TextStyle(
         fontFamily = Kantumruy,
