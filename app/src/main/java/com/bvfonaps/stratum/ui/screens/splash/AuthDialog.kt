@@ -49,13 +49,14 @@ import com.bvfonaps.stratum.ui.viewmodels.factory.AppViewModelProvider
 
 @Composable
 fun AuthDialog(
-    onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: AuthViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val authTypeState by viewModel.authTypeState.collectAsState()
     AuthDialogContent(
-        onDismiss = onDismiss,
+        onDismiss = viewModel::closeAuthDialog,
+        onSwitchToRegister = viewModel::switchToRegisterAuthDialog,
+        onSwitchToLogin = viewModel::switchToLoginAuthDialog,
         authTypeState = authTypeState
     )
 }
@@ -64,6 +65,8 @@ fun AuthDialog(
 @Composable
 fun AuthDialogContent(
     onDismiss: () -> Unit,
+    onSwitchToRegister: () -> Unit,
+    onSwitchToLogin: () -> Unit,
     authTypeState: AuthTypeState
 ) {
     Dialog(onDismissRequest = onDismiss) {
@@ -76,11 +79,11 @@ fun AuthDialogContent(
         ) {
             if (authTypeState == AuthTypeState.Login) {
                 LoginDialog(
-                    onDismiss = onDismiss
+                    onSwitchToRegister = onSwitchToRegister
                 )
             } else {
                 RegisterDialog(
-                    onDismiss = onDismiss
+                    onSwitchToLogin = onSwitchToLogin
                 )
             }
         }
@@ -90,7 +93,7 @@ fun AuthDialogContent(
 
 @Composable
 fun LoginDialog(
-    onDismiss: () -> Unit
+    onSwitchToRegister: () -> Unit
 ) {
     Column(
         modifier = Modifier.padding(20.dp),
@@ -126,7 +129,7 @@ fun LoginDialog(
             horizontalArrangement = Arrangement.End
         ) {
             TextButton(
-                onClick = { },
+                onClick = onSwitchToRegister,
                 colors = ButtonDefaults.textButtonColors(
                     contentColor = MaterialTheme.colorScheme.onSurface
                 )
@@ -145,7 +148,7 @@ fun LoginDialog(
 
 @Composable
 fun RegisterDialog(
-    onDismiss: () -> Unit
+    onSwitchToLogin: () -> Unit
 ) {
     Column(
         modifier = Modifier.padding(20.dp),
@@ -188,7 +191,7 @@ fun RegisterDialog(
             horizontalArrangement = Arrangement.End
         ) {
             TextButton(
-                onClick = { },
+                onClick = onSwitchToLogin,
                 colors = ButtonDefaults.textButtonColors(
                     contentColor = MaterialTheme.colorScheme.onSurface
                 )
@@ -282,6 +285,8 @@ fun LoginDialogPreview() {
     StratumTheme {
         AuthDialogContent(
             onDismiss = { },
+            onSwitchToLogin = { },
+            onSwitchToRegister = { },
             authTypeState = AuthTypeState.Login
         )
     }
@@ -294,6 +299,8 @@ fun RegisterDialogPreview() {
     StratumTheme {
         AuthDialogContent(
             onDismiss = { },
+            onSwitchToRegister = { },
+            onSwitchToLogin = { },
             authTypeState = AuthTypeState.Register
         )
     }
