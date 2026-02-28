@@ -21,6 +21,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -80,7 +81,8 @@ fun SplashContent(
             Text(
                 text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.titleLarge,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                modifier = Modifier.testTag("main_title")
             )
             Spacer(modifier = Modifier.height(128.dp))
             Column(
@@ -95,11 +97,13 @@ fun SplashContent(
                         FoundServerButton(
                             onClickButton = onOpenAuthDialog,
                             modifier = modifier
+                                .testTag("found_server_button")
                         )
                     }
                     DiscoveryState.NotFound -> {
                         NotFoundServerButton(
-                            modifier = modifier,
+                            modifier = modifier
+                                .testTag("not_found_server_button"),
                             onClickSearch = onClickSearch
                         )
                     }
@@ -108,6 +112,7 @@ fun SplashContent(
                             uiState = discoveryState,
                             onClickSearch = onClickSearch,
                             modifier = modifier
+                                .testTag("search_server_button")
                         )
                     }
                 }
@@ -153,7 +158,7 @@ fun SearchServerButton(
 
     Button(
         onClick = onClickSearch,
-        modifier = Modifier.fillMaxWidth(0.8f),
+        modifier = modifier.fillMaxWidth(0.8f),
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.tertiary
         )
@@ -184,7 +189,7 @@ fun FoundServerButton(
 ) {
     Button(
         onClick = onClickButton,
-        modifier = Modifier.fillMaxWidth(0.8f),
+        modifier = modifier.fillMaxWidth(0.8f),
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.primary
         )
@@ -209,7 +214,7 @@ fun NotFoundServerButton(
 ) {
     Button(
         onClick = onClickSearch,
-        modifier = Modifier.fillMaxWidth(0.8f),
+        modifier = modifier.fillMaxWidth(0.8f),
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.error
         )
