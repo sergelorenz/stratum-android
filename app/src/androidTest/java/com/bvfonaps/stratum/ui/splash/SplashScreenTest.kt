@@ -81,4 +81,20 @@ class SplashScreenTest {
             .onNodeWithTag("not_found_server_button")
             .assertIsDisplayed()
     }
+
+    @Test
+    fun splashScreen_showAuth_displaysAuthDialog() {
+        showAuthState.value = ShowAuthState.Open
+        composeTestRule
+            .onNodeWithTag("auth_dialog")
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun splashScreen_noShowAuth_doesNotDisplayAuthDialog() {
+        showAuthState.value = ShowAuthState.Closed
+        composeTestRule
+            .onNodeWithTag("auth_dialog")
+            .assertIsNotDisplayed()
+    }
 }
