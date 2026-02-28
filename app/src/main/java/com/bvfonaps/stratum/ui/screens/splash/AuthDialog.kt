@@ -47,6 +47,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.platform.testTag
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bvfonaps.stratum.ui.theme.StratumTheme
 import com.bvfonaps.stratum.R
@@ -82,13 +83,16 @@ fun AuthDialogContent(
     onLogin: (username: String, password: String) -> Unit,
     onRegister: (username: String, password: String, confirmPassword: String) -> Unit
 ) {
-    Dialog(onDismissRequest = onDismiss) {
+    Dialog(
+        onDismissRequest = onDismiss
+    ) {
         Card(
             shape = RoundedCornerShape(16.dp),
             elevation = CardDefaults.cardElevation(8.dp),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
+                .testTag("auth_dialog")
         ) {
             if (authTypeState == AuthTypeState.Login) {
                 LoginDialog(
@@ -133,13 +137,15 @@ fun LoginDialog(
         AuthTextField(
             value = username,
             onValueChange = { username = it },
-            placeholder = stringResource(R.string.username)
+            placeholder = stringResource(R.string.username),
+            modifier = Modifier.testTag("username_field")
         )
         AuthTextField(
             value = password,
             onValueChange = { password = it },
             placeholder = stringResource(R.string.password),
-            isPassword = true
+            isPassword = true,
+            modifier = Modifier.testTag("password_field")
         )
         Spacer(
             modifier = Modifier.height(8.dp)
@@ -192,19 +198,22 @@ fun RegisterDialog(
         AuthTextField(
             value = username,
             onValueChange = { username = it },
-            placeholder = stringResource(R.string.username)
+            placeholder = stringResource(R.string.username),
+            modifier = Modifier.testTag("username_field")
         )
         AuthTextField(
             value = password,
             onValueChange = { password = it },
             placeholder = stringResource(R.string.password),
-            isPassword = true
+            isPassword = true,
+            modifier = Modifier.testTag("password_field")
         )
         AuthTextField(
             value = confirmPassword,
             onValueChange = { confirmPassword = it },
             placeholder = stringResource(R.string.confirm_password),
-            isPassword = true
+            isPassword = true,
+            modifier = Modifier.testTag("confirm_password_field")
         )
         Spacer(
             modifier = Modifier.height(8.dp)
@@ -236,7 +245,8 @@ fun AuthTextField(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String = "",
-    isPassword: Boolean = false
+    isPassword: Boolean = false,
+    modifier: Modifier = Modifier
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
 
@@ -244,7 +254,8 @@ fun AuthTextField(
         shape = RoundedCornerShape(12.dp),
         tonalElevation = 0.dp,
         shadowElevation = 8.dp,
-        color = MaterialTheme.colorScheme.surface
+        color = MaterialTheme.colorScheme.surface,
+        modifier = modifier
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -316,6 +327,7 @@ fun AuthFeedback(authResultState: AuthResultState) {
                         vertical = 4.dp,
                         horizontal = 12.dp
                     )
+                    .testTag("auth_success_feedback")
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically
@@ -346,6 +358,7 @@ fun AuthFeedback(authResultState: AuthResultState) {
                         vertical = 4.dp,
                         horizontal = 12.dp
                     )
+                    .testTag("auth_error_feedback")
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically
@@ -361,7 +374,8 @@ fun AuthFeedback(authResultState: AuthResultState) {
                     Text(
                         text = authResultState.message,
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.testTag("auth_error_message")
                     )
                 }
             }
@@ -376,6 +390,7 @@ fun AuthFeedback(authResultState: AuthResultState) {
                         vertical = 4.dp,
                         horizontal = 12.dp
                     )
+                    .testTag("authenticating_feedback")
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically
